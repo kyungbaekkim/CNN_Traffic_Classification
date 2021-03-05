@@ -23,7 +23,7 @@ CNN 모델의 입력을 위해 통계적으로 추출된 악성 트래픽 데이
   - 9x9 Input Metrix
   
 ### 악성 트래픽 분류
-![캡처](./img/Architecture of CNN Traffic Classification Model.PNG)
+<img src="/img/Architecture of CNN Traffic Classification Model.PNG">
   - 인공지능 모델: CNN 기반 악성 트래픽 분류
   - 입력 데이터: 78개의 통계적 특징을 9x9 Input Metrix 형태로 구성
   - 출력 데이터: 악성 트래픽 유무
