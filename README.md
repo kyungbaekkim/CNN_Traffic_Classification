@@ -16,8 +16,8 @@
 '--display', type=float, default=10, help='Display Step'
 '--dropout', type=float, default=.5, help='Dropout Value'
 ```
-  - 입력 파일: CICIDS2017 csv 파일
-  - 출력 파일: Precision, Recall, F1score, Confusion Matrix
+  - 입력 파일: CICIDS2017 csv 샘플 파일
+  - 출력 파일: Precision, Recall, F1score, Confusion Matrix 정보를 담은 결과 
 
 ### :heavy_check_mark:데이터 전처리
 1. 데이터를 무작위로 섞은 이후 3-Fold Validation을 수행
