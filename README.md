@@ -1,7 +1,7 @@
 # :books:CNN Traffic Classification Module
 
 ## :book:Model Process
-### 입력 파라메터
+### :heavy_check_mark:입력 파라메터
 ```
 '-d','--dataset', type=str, help='Training Data Path (necessary)'
 '-n','--outputname', type=str, default="", help='Output File Prefix'
@@ -17,16 +17,16 @@
 '--dropout', type=float, default=.5, help='Dropout Value'
 ```
 
-### 데이터 전처리
+### :heavy_check_mark:데이터 전처리
 CNN 모델의 입력을 위해 통계적으로 추출된 악성 트래픽 데이터 셋을 nxn 형태의 Metrix로 변환
 전처리 후 생성되는 데이터
   - 9x9 Input Metrix
   
-### 악성 트래픽 분류
+### :heavy_check_mark:악성 트래픽 분류
 <img src="/img/Architecture of CNN Traffic Classification Model.PNG">
   - 인공지능 모델: CNN 기반 악성 트래픽 분류
   - 입력 데이터: 78개의 통계적 특징을 9x9 Input Metrix 형태로 구성
   - 출력 데이터: 악성 트래픽 유무
 
 ## :book:Dataset Summary
-### CICIDS2017
+### :heavy_check_mark:CICIDS2017
