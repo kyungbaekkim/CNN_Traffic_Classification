@@ -16,7 +16,7 @@
 '--display', type=float, default=10, help='Display Step'
 '--dropout', type=float, default=.5, help='Dropout Value'
 ```
-  - 입력 파일: CICIDS2017 csv 샘플 파일
+  - 입력 파일: Sample.csv (CICIDS2017 Friday Morning)
   - 출력 파일: Precision, Recall, F1score, Confusion Matrix 정보를 담은 결과 
 
 ### :heavy_check_mark:데이터 전처리
@@ -28,11 +28,12 @@
 <img src="/img/Architecture of CNN Traffic Classification Model.PNG">
 
   - 인공지능 모델: CNN 기반 악성 트래픽 분류
-  - 입력: 78개의 통계적 특징을 9x9 Input Metrix 형태로 구성
-  - 출력: 
+  - 입력: 78개의 통계적 특징 9x9 Input Metrix
+  - 출력: 정상(BENIGN), 악성(Bot) 분류
 
 ## :book:Dataset Summary
-### :heavy_check_mark:CICIDS2017
+### :heavy_check_mark:CICIDS2017 Friday Morning
 <img src="/img/DataFormat of CICIDS2017.PNG">
 
-  - 지속시간, 패킷 수, 바이트 수, 패킷 길이 등과 같은 79가지 통계적 특성
+  - 지속시간, 패킷 수, 바이트 수, 패킷 길이 등과 같은 78가지 통계적 특성
+  - 3988개의 row로 구성 (BENIGN: 2022, Bot: 1966)
