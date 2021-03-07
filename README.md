@@ -10,9 +10,8 @@
 
 You may redistribute, republish, and mirror this code in any form. However, any use or redistribution must include a citation to the following paper.
 
-```
-- Sungwoong Yeom, Van-Quyet Nguyen and Kyungbaek Kim, Assessing Convolutional Neural Network based Malicious Network Traffic Detection Methods, KNOM REVIEW, Vol. 22, No. 1, pp. 20-29, August, 2019.
-```
+> Sungwoong Yeom, Van-Quyet Nguyen and Kyungbaek Kim, Assessing Convolutional Neural Network based Malicious Network Traffic Detection Methods, KNOM REVIEW, Vol. 22, No. 1, pp. 20-29, August, 2019.
+
 
 ## :book:Model Process
 ### :heavy_check_mark:입력 파라메터
