@@ -1,5 +1,16 @@
 # :books:CNN Traffic Classification Module
 
+## :book:개요
+
+네트워크 트래픽 특징 벡터 정보(예: KDD cup 99, CICIDS2017)를 이미지로 변환하여 입력으로 사용하는, CNN기반 네트워크 트래픽 공격 분류 모델을 학습하고 검증(3 fold cross validation)하는 기능을 지원하는 모듈.
+
+## :book:License
+
+이 코드는 재배포, 재발행, 미러링 될수 있습니다. 다만, 다음의 논문을 꼭 인용해주시기 바랍니다.
+You may redistribute, republish, and mirror this code in any form. However, any use or redistribution must include a citation to the following paper.
+
+- Sungwoong Yeom, Van-Quyet Nguyen and Kyungbaek Kim, Assessing Convolutional Neural Network based Malicious Network Traffic Detection Methods, KNOM REVIEW, Vol. 22, No. 1, pp. 20-29, August, 2019.
+
 ## :book:Model Process
 ### :heavy_check_mark:입력 파라메터
 ```
@@ -37,3 +48,4 @@
 
   - 지속시간, 패킷 수, 바이트 수, 패킷 길이 등과 같은 78가지 통계적 특성
   - 3988개의 row로 구성 (BENIGN: 2022, Bot: 1966)
+  - CIC IDS2017 dataset details : https://www.unb.ca/cic/datasets/ids-2017.html 
