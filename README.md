@@ -33,7 +33,8 @@ You may redistribute, republish, and mirror this code in any form. However, any 
   - 출력 파일: Precision, Recall, F1score, Confusion Matrix 정보를 담은 결과 
 
 ### :heavy_check_mark:데이터 전처리
-1. 데이터를 무작위로 섞은 이후 3-Fold Validation을 수행
+1. 데이터셋에서 공백문자 제거 및 Oulier(16777216=2^8*2^8*2^8 이상의 값)을 16777216으로 변환
+2. 3-Fold Validation을 수행
 2. CNN 모델의 입력을 위해 통계적으로 추출된 악성 트래픽 데이터 셋을 nxn 형태의 Metrix로 변환
   - 전처리 후 생성되는 데이터: 9x9 Input Metrix
   
@@ -48,6 +49,6 @@ You may redistribute, republish, and mirror this code in any form. However, any 
 ### :heavy_check_mark:CICIDS2017 Friday Morning
 <img src="/img/DataFormat of CICIDS2017.PNG">
 
-  - 지속시간, 패킷 수, 바이트 수, 패킷 길이 등과 같은 78가지 통계적 특성
+  - 지속시간, 패킷 수, 바이트 수, 패킷 길이 등과 같은 통계적 특성 78가지 column을 가짐
   - 3988개의 row로 구성 (BENIGN: 2022, Bot: 1966)
   - CIC IDS2017 dataset details : https://www.unb.ca/cic/datasets/ids-2017.html 
