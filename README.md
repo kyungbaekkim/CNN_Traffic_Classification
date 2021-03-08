@@ -34,8 +34,8 @@ You may redistribute, republish, and mirror this code in any form. However, any 
 
 ### :heavy_check_mark:데이터 전처리
 1. 데이터셋에서 공백문자 제거 및 Oulier(16777216=2^8*2^8*2^8 이상의 값)을 16777216으로 변환
-2. 3-Fold Validation을 수행
-2. CNN 모델의 입력을 위해 통계적으로 추출된 악성 트래픽 데이터 셋을 nxn 형태의 Metrix로 변환
+2. 3-Fold Validation을 수행하여 학습 데이터 및 검증 데이터를 구분
+3. CNN 모델의 입력을 위해 통계적으로 추출된 악성 트래픽 데이터 셋을 nxn 형태의 Metrix로 변환
   - 전처리 후 생성되는 데이터: 9x9 Input Metrix
   
 ### :heavy_check_mark:악성 트래픽 분류
