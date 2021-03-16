@@ -31,12 +31,12 @@ parser = OptionParser(usage = "Usage: %prog -d dataset_file [options]")
 parser.add_option('-d','--dataset', type=str, dest='Path', action="store", help='Training Data Path (necessary)')
 parser.add_option('-n','--outputname', type=str, dest='File_name', default="", action="store", help='Output File Prefix')
 parser.add_option('-c','--conv', type=int, dest='Conv_Layer_Number', default=1, action="store", help='Convolution Layer Number')
-parser.add_option('-p','--pool', type=int, dest='Max_Pool_Layer_Number', default=1, action="store", help='Max Pooling Layer Number')
-parser.add_option('-f','--fcl', type=int, dest='Fully_Connected_Layer_Number', default=1, action="store", help='Fully Connected Layer Number')
-parser.add_option('--hidden', type=int, dest='Hidden_Layer_Number', default=512, action="store", help='Hidden Layer Number')
+parser.add_option('-p','--pool', type=int, dest='Max_Pool_Stride_Number', default=2, action="store", help='Max Pooling Layer Number')
+parser.add_option('-f','--fcl', type=int, dest='Fully_Connected_Layer_Number', default=2, action="store", help='Fully Connected Layer Number')
+parser.add_option('--hidden', type=int, dest='Hidden_Layer_Number', default=1024, action="store", help='Hidden Layer Number')
 parser.add_option('--units', type=int, dest='N_Hidden_Units_Value', default=100, action="store", help='N Hidden Units Value')
 parser.add_option('-l','--learning', type=float, dest='Learning_Rate', default=0.00001, action="store", help='Learning Rate Value')
-parser.add_option('-i','--iters', type=int, dest='Training_Iters', default=10500, action="store", help='Training Iters Value')
+parser.add_option('-i','--iters', type=int, dest='Training_Iters', default=2100, action="store", help='Training Iters Value')
 parser.add_option('-b','--batch', type=int, dest='Batch_Size', default=50, action="store", help='Batch Size Value')
 parser.add_option('--display', type=float, dest='Display_Step', default=10, action="store", help='Display Step')
 parser.add_option('--dropout', type=float, dest='Dropout', default=.5, action="store", help='Dropout Value')
@@ -44,13 +44,14 @@ parser.add_option('--dropout', type=float, dest='Dropout', default=.5, action="s
 options, args = parser.parse_args()
 
 CLnum = options.Conv_Layer_Number
-pool_kernel = options.Max_Pool_Layer_Number
+pool_kernel = options.Max_Pool_Stride_Number
 FCLnum = options.Fully_Connected_Layer_Number
 HLnum = options.Hidden_Layer_Number
+
 # 사용자 - 데이터 패스 입력
 path_dataset = options.Path
-
 Original = pd.read_csv(path_dataset, header=None)
+
 # 데이터 엔트리 이름 제거
 dataset = Original.drop(0,0)
 
@@ -71,10 +72,26 @@ for i in range(0,dataset.shape[1]-1):
 
 # NxN 형태로 변환을 위해 0 값 입력
 label_set = dataset[dataset.shape[1]-1]
-df = pd.DataFrame(columns=(['78','79','80']))
-dataset = dataset.iloc[0:dataset.shape[0]-1,0:dataset.shape[1]-1]
-result = pd.concat([dataset,df])
-result = result.fillna(0)
+N_row = 0
+for i in range(2,dataset.shape[1]-1):
+    if dataset.shape[1] - 1 - i*i <= 0 :
+        N_row = i
+        break
+# print("N_row:",N_row,",Need :",N_row*N_row-dataset.shape[1]+1)
+Rest = N_row*N_row-dataset.shape[1]+1
+Row_Number = dataset.shape[1]-1
+result = 0
+if Rest == 0:
+    result = dataset.iloc[0:dataset.shape[0]-1,0:dataset.shape[1]-1]
+for i in range(0,Rest):
+    if i == 0:
+        result = dataset.iloc[0:dataset.shape[0]-1,0:dataset.shape[1]-1]
+    df = pd.DataFrame(columns=([Row_Number+i]))
+    dataset = dataset.iloc[0:dataset.shape[0]-1,0:result.shape[1]-1]
+    result = pd.concat([result,df])
+    result = result.fillna(0)
+
+#print(result)
 
 # 데이터 프레임 가져와 "lable"종류 확인
 label = label_set.unique()
@@ -83,11 +100,13 @@ label = label[0:len(label)]
 # Legend -> OneHot Vector로 변환.
 for i in range(0,len(label)):
     df = pd.DataFrame(columns=([str(label[i])]))
-    label_set = pd.concat([label_set,df])
+    label_set = pd.concat([label_set,df],axis=0)
     label_set = label_set.fillna(0)
     label_set[label[i]] =label_set[0].isin([label[i]]).astype(int)
-label_set = label_set.iloc[0:dataset.shape[0],1:label_set.shape[1]]
+label_set = label_set.iloc[0:result.shape[0],1:label_set.shape[1]]
 post_dataset = pd.concat([result,label_set],axis=1).astype(float)
+
+#print(post_dataset.shape[1],len(label))
 
 test_33= []; train_66 = []
 test_33_1 = []; train_66_1 = []
@@ -121,7 +140,7 @@ display_step = options.Display_Step
 dropout = options.Dropout  # dropout, probability to keep units
 n_hidden_units = options.N_Hidden_Units_Value  # the number of neural in each hidden layer
 
-keep_prob = tf.placeholder(tf.float32)  # dropout (keep probability)
+keep_prob = tf.compat.v1.placeholder(tf.float32)  # dropout (keep probability)
 
 
 # Read csv files
@@ -141,8 +160,8 @@ def Set_Parameters(training_data, label):
     n_input = training_data.shape[1] - label.shape[0]      # data input (img shape: 9*9)
     n_classes = label.shape[0]       # total classes
     # Variables
-    x = tf.placeholder(tf.float32, [None, n_input])
-    y = tf.placeholder(tf.float32, [None, n_classes])
+    x = tf.compat.v1.placeholder(tf.float32, [None, n_input])
+    y = tf.compat.v1.placeholder(tf.float32, [None, n_classes])
     return n_input, n_classes, x, y
 
 # CNN
@@ -150,7 +169,7 @@ def Set_Parameters(training_data, label):
 # Convolutional Layer (feature maps' size = 9x9)
 def Convolutional_Layer(X, Input, padding):
     output = 32
-    W_conv = tf.Variable(tf.truncated_normal(shape=[3, 3, Input, output], stddev=1e-4))
+    W_conv = tf.Variable(tf.random.truncated_normal(shape=[3, 3, Input, output], stddev=1e-4))
     b_conv = tf.Variable(tf.constant(0.1, shape=[output]))
     h_conv = tf.nn.relu(tf.nn.conv2d(X, W_conv, strides=[1, 1, 1, 1], padding=padding) + b_conv)
     return h_conv, output
@@ -168,7 +187,7 @@ def CL_Count(num, input):
 
 # Max-Pooling Layer (feature maps' size = 2x2)
 def Max_Pooling_Layer(Input, pool_kernel, stride):
-    h_pool = tf.nn.max_pool(Input, ksize=[1, pool_kernel, pool_kernel, 1], strides=[1, stride, stride, 1], padding='SAME')
+    h_pool = tf.nn.max_pool2d(Input, ksize=[1, pool_kernel, pool_kernel, 1], strides=[1, stride, stride, 1], padding='SAME')
     return h_pool
 
 # Convert feature maps into vectors
@@ -178,7 +197,7 @@ def Flatten(h_pool,size):
 
 # Fully-Connected Layer
 def Fully_Connected_Layer(Input, InputSize, OutputSize):
-    W_fc = tf.Variable(tf.truncated_normal(shape=[InputSize, OutputSize], stddev=0.04))
+    W_fc = tf.Variable(tf.random.truncated_normal(shape=[InputSize, OutputSize], stddev=0.04))
     b_fc = tf.Variable(tf.constant(0.0, shape=[OutputSize]))
     h_fc = tf.nn.relu(tf.matmul(Input, W_fc) + b_fc)
     return h_fc, OutputSize
@@ -193,7 +212,7 @@ def FCL_Count(num, Input_flat,InputSize, OutputSize):
 
 # Output layer
 def Output_Layer(Input, InputSize, n_classes):
-    W_fc3 = tf.Variable(tf.truncated_normal(shape=[InputSize, n_classes], stddev=1e-4))
+    W_fc3 = tf.Variable(tf.random.truncated_normal(shape=[InputSize, n_classes], stddev=1e-4))
     b_fc3 = tf.Variable(tf.constant(0.1, shape=[n_classes]))
     y_conv = tf.nn.softmax(tf.matmul(Input, W_fc3) + b_fc3)
     return y_conv
@@ -202,7 +221,7 @@ def Output_Layer(Input, InputSize, n_classes):
 # pool_kernel
 def Net_Model(x, CLnum, pool_kernel, FCLnum, HLnum, dropout, n_classes):
     # Convert input vector into image
-    x = tf.reshape(x, shape=[-1, 9, 9, 1])
+    x = tf.reshape(x, shape=[-1, N_row, N_row, 1])
 
     # Convolution Number(1,2,3)
     h_conv = CL_Count(CLnum, x)
@@ -211,7 +230,8 @@ def Net_Model(x, CLnum, pool_kernel, FCLnum, HLnum, dropout, n_classes):
     stride = pool_kernel
     h_pool = Max_Pooling_Layer(h_conv, pool_kernel, stride)
     FC_kernel = round((9-pool_kernel)/stride)+1
-    h_pool_flat = Flatten(h_pool,FC_kernel*FC_kernel*32)
+    #h_pool_flat = Flatten(h_pool,FC_kernel*FC_kernel*32)
+    h_pool_flat = Flatten(h_pool, FC_kernel * FC_kernel * 32)
 
     # FC Net Layer Number(1, 2), Hidden Layer Number(512, 1024)
     h_fc = FCL_Count(FCLnum, h_pool_flat,FC_kernel*FC_kernel*32, HLnum)
@@ -243,8 +263,8 @@ def next_batch(batch_size, num_examples):
     return training_data[start:end]
 
 def Loss_function(y, pred):
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y, logits=pred))
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate_).minimize(cross_entropy)
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=pred))
+    optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate_).minimize(cross_entropy)
     return cross_entropy, optimizer
 
 def Evaluation(y, pred):
@@ -255,21 +275,21 @@ def Evaluation(y, pred):
 # Launching
 def Training(cross_entropy, accuracy, n_input):
     # Initializing the variables
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
     for step in range(training_iters):
         # Training batch
         training_batch = next_batch(batch_size, num_examples)
 
         # Learning
         sess.run(optimizer, feed_dict={x: training_batch[:, 0:n_input],
-                                       y: training_batch[:, 81:81+len(label)],
+                                       y: training_batch[:, N_row*N_row:N_row*N_row+len(label)],
                                        keep_prob: dropout})
         # Calculate training accuracy
         if step % display_step == 0:
             loss, acc = sess.run([cross_entropy, accuracy],
                                  feed_dict={x: training_batch[:, 0:n_input],
-                                            y: training_batch[:, 81:81+len(label)],
+                                            y: training_batch[:, N_row*N_row:N_row*N_row+len(label)],
                                             keep_prob: 1.})
             print('> Training step %d: minibatch loss = %f, training accuracy = %f' % (step, loss, acc))
 
@@ -299,9 +319,13 @@ def Test(accuracy, pred, sess, n_input):
         if(end >= test_size):
             end = test_size
 
+        #test_accuracy += sess.run(accuracy, feed_dict={x: testing_data[start:end,0:n_input],
+        #                                               y: testing_data[start:end,81:81+len(label)],
+        #                                               keep_prob: 1.})
+
         y_p = tf.argmax(pred, 1)
         t_accuracy, y_pred = sess.run([accuracy, y_p], feed_dict={x: testing_data[start:end,0:n_input],
-                                                       y: testing_data[start:end,81:81+len(label)],
+                                                       y: testing_data[start:end,N_row*N_row:N_row*N_row+len(label)],
                                                        keep_prob: 1.})
 
         #print( "TT : ", type(y_pred), " : ", y_pred.dtype )
@@ -310,7 +334,7 @@ def Test(accuracy, pred, sess, n_input):
         y_pred_t = np.r_[y_pred_t, y_pred]
         #print('y_pred: %s' % (y_pred_t))
 
-        y_true = np.argmax(testing_data[start:end, 81:81 + len(label)], 1)
+        y_true = np.argmax(testing_data[start:end, N_row*N_row:N_row*N_row + len(label)], 1)
         y_true_t = np.r_[y_true_t, y_true]
         #print('y_true: %s' % (y_true_t))
 
@@ -338,6 +362,7 @@ for i in range(0,3):
     cross_entropy, optimizer = Loss_function(y, pred)
     accuracy = Evaluation(y, pred)
     start_time = time.time()
+    print(n_input)
     sess = Training(cross_entropy, accuracy, n_input)
     Timeout = time.time() - start_time
     Accuracy = Test(accuracy, pred, sess, n_input)
